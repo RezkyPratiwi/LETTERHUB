@@ -1,0 +1,11 @@
+node_modules/
+.vercel/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# Sembunyikan file database & cadangan data dari repositori publik
+database.sql
+*.sql
+data_backup.json

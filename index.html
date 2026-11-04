@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LetterHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Executive Navigation Bar (Hidden on Print) -->
+  <header class="app-header no-print">
+    <div class="header-brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title-row">
+          <h1>LETTER<span>HUB</span></h1>
+          <span class="brand-tag">BPPP AMBON</span>
+        </div>
+        <div class="brand-meta-row">
+          <span class="brand-subtitle">Sistem Administrasi Dokumen BAST PJLP</span>
+          <span id="dbStatusBadge" class="hidden"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Segmented Navigation -->
+    <nav class="header-tabs" aria-label="Menu Utama">
+      <button type="button" id="tabBtnBuatSurat" class="tab-btn active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        Workspace Surat BAST
+      </button>
+      <button type="button" id="tabBtnMasterData" class="tab-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Data Pegawai, SPK & TTD
+        <span class="tab-counter" id="countMasterPegawai">2</span>
+      </button>
+    </nav>
+
+    <!-- Right Quick Print & Export Actions -->
+    <div class="header-actions" id="headerPrintActions">
+      <div class="stepper-group">
+        <button type="button" id="btnPrevSurat" class="btn-stepper" title="Dokumen Sebelumnya">
+          ◀
+        </button>
+        <span id="activeSuratIndicator" class="surat-indicator">User 1 / 2</span>
+        <button type="button" id="btnNextSurat" class="btn-stepper" title="Dokumen Berikutnya">
+          ▶
+        </button>
+      </div>
+
+      <button type="button" id="btnPrintSingle" class="btn btn-primary" title="Cetak atau Simpan PDF untuk dokumen yang sedang tampil">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Cetak / Simpan PDF
+      </button>
+
+      <button type="button" id="btnExportWord" class="btn btn-secondary" title="Unduh file Microsoft Word (.doc) untuk dokumen ini">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Unduh Word (.doc)
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       TAB 1: WORKSPACE PEMBUATAN & CETAK SURAT BAST
+       ======================================================================== -->
+  <main id="viewBuatSurat" class="workspace">
+    <!-- Left Sidebar: Konfigurasi Tanggal & Daftar Surat per User -->
+    <aside class="control-panel no-print">
+      
+      <!-- Step 01: Pengisian Tanggal 1 Kali untuk Semua Surat -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-pill">01</span>
+            <div>
+              <h2>Parameter Waktu Surat</h2>
+              <p class="card-subtitle">Diisi 1 kali, otomatis berlaku ke seluruh dokumen</p>
+            </div>
+          </div>
+          <span class="badge badge-green">Sinkron Otomatis</span>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bastDatePicker">Pilih Tanggal Kalender</label>
+              <input type="date" id="bastDatePicker" value="2026-08-31" />
+            </div>
+            <div class="form-group">
+              <label for="bastBulanKerja">Bulan Pelaksanaan</label>
+              <select id="bastBulanKerja">
+                <option value="Januari">Januari</option>
+                <option value="Februari">Februari</option>
+                <option value="Maret">Maret</option>
+                <option value="April">April</option>
+                <option value="Mei">Mei</option>
+                <option value="Juni">Juni</option>
+                <option value="Juli">Juli</option>
+                <option value="Agustus" selected>Agustus</option>
+                <option value="September">September</option>
+                <option value="Oktober">Oktober</option>
+                <option value="November">November</option>
+                <option value="Desember">Desember</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bastHari">Hari Penandatanganan</label>
+              <input type="text" id="bastHari" value="Senin" placeholder="Contoh: Senin" />
+            </div>
+            <div class="form-group">
+              <label for="bastTanggalTeks">Tanggal Teks pada Surat</label>
+              <input type="text" id="bastTanggalTeks" value="31 Agustus 2026" placeholder="Contoh: 31 Agustus 2026" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 02: Daftar Penerima Surat & Input Nomor BAST Manual -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-pill">02</span>
+            <div>
+              <h2>Daftar Pihak Kedua & Nomor BAST</h2>
+              <p class="card-subtitle">Pilih pegawai & masukkan nomor surat secara manual</p>
+            </div>
+          </div>
+          <span class="badge" id="badgeJumlahSurat">2 Surat</span>
+        </div>
+        <div class="card-body">
+          <div class="button-group-row" style="margin-top:0;">
+            <button type="button" id="btnAddRowSurat" class="btn btn-primary btn-sm" style="flex:1;">
+              + Tambah Baris
+            </button>
+            <button type="button" id="btnLoadAllMaster" class="btn btn-outline btn-sm" title="Muat seluruh pegawai ke dalam daftar surat">
+              ⚡ Muat Semua
+            </button>
+            <button type="button" id="btnResetSuratQueue" class="btn btn-danger btn-sm" title="Reset daftar orang yang dibuatkan surat kembali ke 1 baris awal">
+              🔄 Reset
+            </button>
+          </div>
+
+          <!-- Daftar Baris User & Input Nomor Surat -->
+          <div id="suratQueueContainer" class="surat-queue-container">
+            <!-- Rendered by app.js -->
+          </div>
+
+          <button type="button" id="btnApplyAllSurat" class="btn btn-success" style="width:100%; margin-top:0.25rem;">
+            ✓ Simpan & Terapkan ke Seluruh Dokumen
+          </button>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- Right Area: Document Studio Preview (A4 Paper) -->
+    <section class="preview-area">
+      <div class="studio-statusbar no-print">
+        <div class="studio-status-left">
+          <span class="live-dot"></span>
+          <span id="previewBannerText">Menampilkan Dokumen BAST</span>
+        </div>
+        <div class="studio-status-right">
+          <span class="spec-chip">Kertas A4 (210×297mm)</span>
+          <span class="spec-chip">Tahoma 12pt • Justify</span>
+        </div>
+      </div>
+
+      <!-- Horizontal Ruler (Seperti Tampilan Word) -->
+      <div class="word-ruler no-print" title="Penggaris Area Cetak 16.5 cm (Kertas A4)">
+        <div class="ruler-marks">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+        </div>
+      </div>
+
+      <!-- Single Document Preview / Print (1 Halaman A4) -->
+      <div id="printContainer" class="print-container">
+        <div class="a4-page" id="bastPageSingle">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       TAB 2: MASTER DATABASE USER (CRUD MYSQL), SPK & TANDA TANGAN
+       ======================================================================== -->
+  <section id="viewMasterData" class="master-workspace hidden no-print">
+    
+    <!-- Tabel Daftar Pegawai Pihak Kedua -->
+    <div class="card" style="margin-bottom: 1.4rem;">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="step-pill">01</span>
+          <div>
+            <h2>Daftar Pegawai PJLP / Pihak Kedua</h2>
+            <p class="card-subtitle">Kelola biodata, nomor SPK, honorarium, dan tanda tangan pegawai</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.55rem;">
+          <button type="button" id="btnRefreshDb" class="btn btn-outline btn-sm">
+            ↻ Muat Ulang Data
+          </button>
+          <button type="button" id="btnMasterNewUser" class="btn btn-primary btn-sm">
+            + Tambah Pegawai Baru
+          </button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="crud-table-wrapper">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th style="width:52px;">ID</th>
+                <th>Nama Lengkap</th>
+                <th>NIK</th>
+                <th>Jenis PJLP</th>
+                <th>Alamat</th>
+                <th>Nomor & Tgl SPK Default</th>
+                <th>Honorarium</th>
+                <th>TTD</th>
+                <th style="width:160px; text-align:center;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="crudUserTableBody">
+              <!-- Diisi otomatis dari database MySQL -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="master-grid">
+      
+      <!-- Kolom Kiri: Form Create / Update User Pihak Kedua -->
+      <div class="card" id="formUserCard">
+        <div class="card-header">
+          <div>
+            <h2 id="formUserTitle">Form Edit / Tambah User (Pihak Kedua)</h2>
+            <p class="card-subtitle">Data default ini otomatis digunakan setiap kali membuat surat</p>
+          </div>
+          <span class="badge" id="formUserModeBadge">Mode Edit</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="masterSelectUser">Pilih Cepat Pegawai dari Database:</label>
+            <select id="masterSelectUser"></select>
+          </div>
+
+          <div class="divider-title">Biodata Default Pihak Kedua</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mP2Nama">Nama Lengkap Pihak Kedua <span class="req">*</span></label>
+              <input type="text" id="mP2Nama" placeholder="Contoh: Putra Alwali Kaimudin" />
+            </div>
+            <div class="form-group">
+              <label for="mP2Nik">NIK <span class="req">*</span></label>
+              <input type="text" id="mP2Nik" placeholder="Contoh: 81710022510960001" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mP2Alamat">Alamat Lengkap <span class="req">*</span></label>
+            <input type="text" id="mP2Alamat" placeholder="Contoh: Jl.Kesatrian Asmil,RT.002/RW.006,Kota Ambon" />
+          </div>
+
+          <div class="divider-title">Data SPK & Honorarium Default</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mP2Jabatan">Jenis Pekerjaan (PJLP)</label>
+              <input type="text" id="mP2Jabatan" list="listJabatan" placeholder="Petugas Keamanan" />
+              <datalist id="listJabatan">
+                <option value="Petugas Kebersihan"></option>
+                <option value="Petugas Keamanan"></option>
+                <option value="Pramubakti"></option>
+                <option value="Pengemudi"></option>
+                <option value="Teknisi"></option>
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label for="mP2Honor">Nilai Honorarium (Rp)</label>
+              <input type="number" id="mP2Honor" placeholder="3381225" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mP2Terbilang">Terbilang Honorarium (Otomatis)</label>
+            <input type="text" id="mP2Terbilang" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mP2NoSpk">Nomor SPK Default</label>
+              <input type="text" id="mP2NoSpk" placeholder="SPK.123/BPPP.AMB/PL.450/I/2026" />
+            </div>
+            <div class="form-group">
+              <label for="mP2TglSpk">Tanggal SPK Default</label>
+              <input type="text" id="mP2TglSpk" placeholder="5 Januari 2026" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mP2NoBastDefault">Nomor BAST Default / Terakhir (Opsional)</label>
+            <input type="text" id="mP2NoBastDefault" placeholder="B.1691.10/BPPP.AMB/PL.450/VIII/2026" />
+          </div>
+
+          <!-- Pengaturan Tanda Tangan Pihak Kedua -->
+          <div class="divider-title">Tanda Tangan (TTD) Default Pihak Kedua</div>
+          <div class="ttd-box">
+            <div class="ttd-preview-col">
+              <div class="ttd-label">Pratinjau TTD Saat Ini:</div>
+              <div class="ttd-preview-frame" id="previewFrameTtdP2">
+                <span class="ttd-empty-text">Kosong (Tanpa Gambar TTD)</span>
+              </div>
+              <div class="ttd-actions-row">
+                <label class="btn btn-outline btn-xs" style="cursor:pointer;">
+                  📁 Upload File TTD
+                  <input type="file" id="uploadTtdP2" accept="image/*" style="display:none;" />
+                </label>
+                <button type="button" id="btnClearTtdP2" class="btn btn-danger btn-xs">
+                  Hapus TTD
+                </button>
+              </div>
+            </div>
+
+            <div class="ttd-canvas-col">
+              <div class="ttd-label">Atau Goreskan TTD Langsung:</div>
+              <canvas id="canvasTtdP2" width="260" height="95" class="ttd-canvas"></canvas>
+              <div class="ttd-actions-row">
+                <button type="button" id="btnUseCanvasP2" class="btn btn-primary btn-xs">
+                  ✓ Gunakan TTD Ini
+                </button>
+                <button type="button" id="btnResetCanvasP2" class="btn btn-outline btn-xs">
+                  Ulangi
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-group-row" style="margin-top:0.65rem;">
+            <button type="button" id="btnSaveMasterUser" class="btn btn-success">
+              ✓ Simpan Data Pegawai
+            </button>
+            <button type="button" id="btnDeleteMasterUser" class="btn btn-danger">
+              Hapus Pegawai
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kolom Kanan: Master Default Pihak Pertama (PPK + TTD) & Tata Letak -->
+      <div class="master-right-col">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Pengaturan Default Pihak Pertama (PPK)</h2>
+              <p class="card-subtitle">Data Pejabat Pembuat Komitmen pada dokumen BAST</p>
+            </div>
+            <span class="badge">Pejabat PPK</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="mP1Nama">Nama Pihak Pertama (PPK)</label>
+              <input type="text" id="mP1Nama" value="Rahmawati Umasugi" />
+            </div>
+            <div class="form-group">
+              <label for="mP1Jabatan">Jabatan Pihak Pertama</label>
+              <input type="text" id="mP1Jabatan" value="Pejabat Pembuat Komitmen" />
+            </div>
+            <div class="form-group">
+              <label for="mP1Alamat">Alamat Pihak Pertama</label>
+              <input type="text" id="mP1Alamat" value="Jl. Dr. Leimena Desa Rumah Tiga Ambon" />
+            </div>
+
+            <div class="divider-title">Tanda Tangan (TTD) Default Pihak Pertama</div>
+            <div class="ttd-box">
+              <div class="ttd-preview-col">
+                <div class="ttd-label">Pratinjau TTD PPK:</div>
+                <div class="ttd-preview-frame" id="previewFrameTtdP1">
+                  <span class="ttd-empty-text">Kosong (Tanpa Gambar TTD)</span>
+                </div>
+                <div class="ttd-actions-row">
+                  <label class="btn btn-outline btn-xs" style="cursor:pointer;">
+                    📁 Upload File TTD
+                    <input type="file" id="uploadTtdP1" accept="image/*" style="display:none;" />
+                  </label>
+                  <button type="button" id="btnClearTtdP1" class="btn btn-danger btn-xs">
+                    Hapus TTD
+                  </button>
+                </div>
+              </div>
+
+              <div class="ttd-canvas-col">
+                <div class="ttd-label">Atau Goreskan TTD PPK:</div>
+                <canvas id="canvasTtdP1" width="260" height="95" class="ttd-canvas"></canvas>
+                <div class="ttd-actions-row">
+                  <button type="button" id="btnUseCanvasP1" class="btn btn-primary btn-xs">
+                    ✓ Gunakan TTD Ini
+                  </button>
+                  <button type="button" id="btnResetCanvasP1" class="btn btn-outline btn-xs">
+                    Ulangi
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" id="btnSaveMasterP1" class="btn btn-success" style="margin-top:0.5rem;">
+              ✓ Simpan Data PPK
+            </button>
+          </div>
+        </div>
+
+        <!-- Pengaturan Tata Letak Word Default -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Parameter Tata Letak Dokumen</h2>
+              <p class="card-subtitle">Presisi Standar Microsoft Word & KOP BP3 2024</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="layoutIndentLeft">Inden Kiri (cm)</label>
+                <input type="number" step="0.01" id="layoutIndentLeft" value="0.05" />
+              </div>
+              <div class="form-group">
+                <label for="layoutIndentRight">Inden Kanan (cm)</label>
+                <input type="number" step="0.01" id="layoutIndentRight" value="0" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="layoutSpaceBefore">Spasi Sebelum (pt)</label>
+                <input type="number" step="0.1" id="layoutSpaceBefore" value="7.8" />
+              </div>
+              <div class="form-group">
+                <label for="layoutSpaceAfter">Spasi Sesudah (pt)</label>
+                <input type="number" step="0.1" id="layoutSpaceAfter" value="0" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="docFontFamily">Tipografi Isi Dokumen</label>
+                <select id="docFontFamily">
+                  <option value="'Tahoma', sans-serif" selected>Tahoma • 12pt • Justify</option>
+                  <option value="'Times New Roman', Times, serif">Times New Roman • 12pt • Justify</option>
+                  <option value="Arial, Helvetica, sans-serif">Arial • 12pt • Justify</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="ttdHeightPx">Tinggi Gambar TTD (px)</label>
+                <input type="number" id="ttdHeightPx" value="68" min="40" max="120" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Custom Executive Modal Dialog (Menggantikan alert/confirm bawaan browser) -->
+  <div id="lhModalOverlay" class="lh-modal-overlay hidden no-print" role="dialog" aria-modal="true">
+    <div class="lh-modal-card">
+      <div class="lh-modal-header">
+        <div id="lhModalIcon" class="lh-modal-icon lh-modal-icon-warn">!</div>
+        <div class="lh-modal-title-wrap">
+          <h3 id="lhModalTitle">Konfirmasi Tindakan</h3>
+          <p id="lhModalSubtitle">LETTERHUB • Sistem Dokumen BAST</p>
+        </div>
+      </div>
+      <div id="lhModalMessage" class="lh-modal-body">
+        Apakah Anda yakin ingin melanjutkan?
+      </div>
+      <div class="lh-modal-footer">
+        <button type="button" id="lhModalCancelBtn" class="btn btn-outline">
+          Batal
+        </button>
+        <button type="button" id="lhModalConfirmBtn" class="btn btn-primary">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast no-print"></div>
+
+  <script src="kop_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

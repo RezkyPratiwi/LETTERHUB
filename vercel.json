@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api.php", "destination": "/api/db.js" },
+    { "source": "/backup.json", "destination": "/api/backup.js" }
+  ]
+}
