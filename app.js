@@ -1237,34 +1237,45 @@ el.btnSaveMasterUser.addEventListener('click', async () => {
     ttd: currentEditTtdP2
   };
 
+  let savedId = isNew ? 0 : Number(selectedMasterUserId);
+  let mode = isNew ? 'created' : 'updated';
+
   try {
     const res = await apiRequest('save_user', payload);
-    selectedMasterUserId = Number(res.id);
-    if (res.mode === 'created') {
-      const newUserObj = { ...payload, id: Number(res.id) };
-      masterUsers.push(newUserObj);
-      suratQueue.push({
-        userId: Number(res.id),
-        noBast: payload.noBastDefault || ''
-      });
-      activeQueueIndex = suratQueue.length - 1;
-    } else {
-      const idx = masterUsers.findIndex((u) => Number(u.id) === Number(res.id));
-      if (idx !== -1) {
-        masterUsers[idx] = { ...masterUsers[idx], ...payload, id: Number(res.id) };
-      }
+    if (res && res.id) savedId = Number(res.id);
+    if (res && res.mode) mode = res.mode;
+  } catch (_) {
+    // Mode Cloud Statis (Vercel): simpan langsung ke penyimpanan lokal browser
+    if (isNew) {
+      const maxId = masterUsers.reduce((m, u) => Math.max(m, Number(u.id) || 0), 0);
+      savedId = maxId + 1;
+      mode = 'created';
     }
-    saveSnapshotImmediate();
-    await fetchAllFromDatabase();
-    saveSnapshotImmediate();
-    showToast(
-      res.mode === 'created'
-        ? `Pegawai baru "${nama}" berhasil ditambahkan!`
-        : `Data pegawai "${nama}" berhasil diperbarui!`
-    );
-  } catch (err) {
-    await showAlertModal('Gagal Menyimpan Data', err.message);
   }
+
+  selectedMasterUserId = Number(savedId);
+  if (mode === 'created') {
+    const newUserObj = { ...payload, id: Number(savedId) };
+    masterUsers.push(newUserObj);
+    suratQueue.push({
+      userId: Number(savedId),
+      noBast: payload.noBastDefault || ''
+    });
+    activeQueueIndex = suratQueue.length - 1;
+  } else {
+    const idx = masterUsers.findIndex((u) => Number(u.id) === Number(savedId));
+    if (idx !== -1) {
+      masterUsers[idx] = { ...masterUsers[idx], ...payload, id: Number(savedId) };
+    }
+  }
+  saveSnapshotImmediate();
+  await fetchAllFromDatabase();
+  saveSnapshotImmediate();
+  showToast(
+    mode === 'created'
+      ? `Pegawai baru "${nama}" berhasil ditambahkan!`
+      : `Data pegawai "${nama}" berhasil diperbarui!`
+  );
 });
 
 // Hapus Pegawai
@@ -1288,19 +1299,20 @@ async function deleteUserById(id) {
 
   try {
     await apiRequest('delete_user', { id: Number(id) });
-    masterUsers = masterUsers.filter((u) => Number(u.id) !== Number(id));
-    suratQueue = suratQueue.filter((q) => Number(q.userId) !== Number(id));
-    if (suratQueue.length === 0 && masterUsers.length > 0) {
-      suratQueue = [{ userId: Number(masterUsers[0].id), noBast: masterUsers[0].noBastDefault || '' }];
-    }
-    selectedMasterUserId = masterUsers[0].id;
-    saveSnapshotImmediate();
-    await fetchAllFromDatabase();
-    saveSnapshotImmediate();
-    showToast(`Data pegawai "${target.nama}" telah dihapus.`);
-  } catch (err) {
-    await showAlertModal('Gagal Menghapus Data', err.message);
+  } catch (_) {
+    // Mode Cloud Statis (Vercel): hapus langsung dari penyimpanan lokal browser
   }
+
+  masterUsers = masterUsers.filter((u) => Number(u.id) !== Number(id));
+  suratQueue = suratQueue.filter((q) => Number(q.userId) !== Number(id));
+  if (suratQueue.length === 0 && masterUsers.length > 0) {
+    suratQueue = [{ userId: Number(masterUsers[0].id), noBast: masterUsers[0].noBastDefault || '' }];
+  }
+  selectedMasterUserId = masterUsers[0].id;
+  saveSnapshotImmediate();
+  await fetchAllFromDatabase();
+  saveSnapshotImmediate();
+  showToast(`Data pegawai "${target.nama}" telah dihapus.`);
 }
 
 el.btnDeleteMasterUser.addEventListener('click', async () => {
@@ -1327,14 +1339,14 @@ el.btnSaveMasterP1.addEventListener('click', async () => {
 
   try {
     await apiRequest('save_p1', payload);
-    masterP1 = { ...masterP1, ...payload };
-    saveSnapshotImmediate();
-    await fetchAllFromDatabase();
-    saveSnapshotImmediate();
-    showToast('Data Pihak Pertama (PPK) berhasil disimpan!');
-  } catch (err) {
-    await showAlertModal('Gagal Menyimpan Data PPK', err.message);
+  } catch (_) {
+    // Mode Cloud Statis (Vercel)
   }
+  masterP1 = { ...masterP1, ...payload };
+  saveSnapshotImmediate();
+  await fetchAllFromDatabase();
+  saveSnapshotImmediate();
+  showToast('Data Pihak Pertama (PPK) berhasil disimpan!');
 });
 
 // ============================================================================
