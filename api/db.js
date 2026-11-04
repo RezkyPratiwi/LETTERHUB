@@ -1,5 +1,3 @@
-const mysql = require('mysql2/promise');
-
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,6 +38,7 @@ module.exports = async (req, res) => {
   // Jika DB_HOST dikonfigurasi di Vercel (Cloud MySQL)
   let conn;
   try {
+    const mysql = require('mysql2/promise');
     conn = await mysql.createConnection({
       host: dbHost,
       port: Number(process.env.DB_PORT || 3306),
@@ -63,7 +62,7 @@ module.exports = async (req, res) => {
       );
       const [suratList] = await conn.query(
         `SELECT s.id, s.user_id AS userId, s.no_bast AS noBast,
-                s.hari, s.tanggal_teks AS tanggalTeks, s.bulan_kerja AS bulanKerja
+                s.hari, s.tanggal_teks AS tanggalTeks, s.bulan_kerja AS bulan_kerja
          FROM surat_bast s ORDER BY s.id ASC`
       );
       return res.status(200).json({

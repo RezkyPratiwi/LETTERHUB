@@ -18,3 +18,4 @@ module.exports = async (req, res) => {
   // On Vercel serverless, filesystem is read-only after build, so return ok: true
   return res.status(200).json({ ok: true });
 };
+

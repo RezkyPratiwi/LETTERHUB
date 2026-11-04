@@ -5,7 +5,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Sembunyikan file database & cadangan data dari repositori publik
+# Sembunyikan file database, cadangan data & server lokal dari repositori publik
 database.sql
 *.sql
 data_backup.json
+server.js
+api.php
+BUKA_SISTEM_BAST.bat

@@ -1,7 +1,8 @@
 {
   "version": 2,
+  "cleanUrls": false,
   "rewrites": [
-    { "source": "/api.php", "destination": "/api/db.js" },
-    { "source": "/backup.json", "destination": "/api/backup.js" }
+    { "source": "/api.php", "destination": "/api/db" },
+    { "source": "/backup.json", "destination": "/api/backup" }
   ]
 }
